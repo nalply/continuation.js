@@ -60,9 +60,10 @@ of the idle loop).
 
 where `new Continuation()` delivers a [delimited continuation][dc] `cc`
 whic can be invoked like this `cc()` or passed to `setTimeout` like a
-function; and where `isInvoked` is true if the continuation has been 
-invoked, i.e. a «goto» to the continuation has happened and finally
-where `Continuation.idle` is a continuation for the idle loop.
+function; and where `cc instanceof Continuation` is true if the 
+continuation just has been created, i.e. a «goto» to the continuation
+has not yet happened and finally where `Continuation.idle` is a
+continuation for the idle loop.
 
 [us]: http://phpjs.org/functions/usleep:574
 [dc]: http://en.wikipedia.org/wiki/Delimited_continuation
