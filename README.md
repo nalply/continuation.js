@@ -40,6 +40,38 @@ tail-call optimization.
 [cps]: http://en.wikipedia.org/wiki/Continuation-passing_style "CPS"
 
 
+### An example why continuations are useful: sleep
+
+**NOTE!** I am not sure whether this really works. It is just an idea which I need
+to test first.
+
+One of the things which baffles Javascript newbies is the lack of a sleep()
+function and the difficulty to implement it in a good way. php.js' [usleep()][us]
+uses a busy loop to sleep. A very bad idea. I suspect that it is possible to
+implement it with continuations:
+
+    function sleep(seconds) {
+        var cc = Continuations.current
+        if (cc.isInvoked) return /* sleep() ended */
+        setTimeout(cc, seconds * 1000)
+        Continuations.idle() /* go to the idle loop */
+    }
+
+where `Continuations.current` delivers a [delimited continuation][dc] `cc`
+whic can be invoked like this `cc()` or passed to `setTimeout` like a
+function; and where `isInvoked` is true if the continuation has been 
+invoked, i.e. a «goto» to the continuation has happened and finally
+where `Continuations.idle` is a continuation for the idle loop.
+
+[us]: http://phpjs.org/functions/usleep:574
+[dc]: http://en.wikipedia.org/wiki/Delimited_continuation
+
+We see we can (perhaps) implement the control structure "sleep" with the
+help of continuations only. This also shows why continuations are important
+for Node.js: continuations can encapsulate complicated asynchronous control
+structures.
+
+
 ### How does continuation.js work?
 
 There is a CPS transform function. It takes a function or its source code and
