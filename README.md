@@ -48,20 +48,21 @@ to test first.
 One of the things which baffles Javascript newbies is the lack of a sleep()
 function and the difficulty to implement it in a good way. php.js' [usleep()][us]
 uses a busy loop to sleep. A very bad idea. I suspect that it is possible to
-implement it with continuations:
+implement it with continuations and a jump to the idle loop (with a continuation
+of the idle loop).
 
     function sleep(seconds) {
-        var cc = Continuations.current
-        if (cc.isInvoked) return /* sleep() ended */
+        var cc = new Continuation()
+        if (!cc instanceof Continuation) return /* sleep() ended */
         setTimeout(cc, seconds * 1000)
-        Continuations.idle() /* go to the idle loop */
+        Continuation.idle() /* go to the idle loop */
     }
 
-where `Continuations.current` delivers a [delimited continuation][dc] `cc`
+where `new Continuation()` delivers a [delimited continuation][dc] `cc`
 whic can be invoked like this `cc()` or passed to `setTimeout` like a
 function; and where `isInvoked` is true if the continuation has been 
 invoked, i.e. a «goto» to the continuation has happened and finally
-where `Continuations.idle` is a continuation for the idle loop.
+where `Continuation.idle` is a continuation for the idle loop.
 
 [us]: http://phpjs.org/functions/usleep:574
 [dc]: http://en.wikipedia.org/wiki/Delimited_continuation
